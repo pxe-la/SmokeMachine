@@ -33,10 +33,8 @@ void Api::add(char* name, KeyValue* props, ApiCallback callback) {
   });
 }
 
-api.add("wifiAp", {
-  {"ssid", config->ApSsid},
-  {"pass", config->ApPass}
+api.add("/api/wifi", {
+  {"ssid", &(config->ssid), RW},
+  {"pass", &(config->pass), W},
+  0
 });
-api.add("wifi", {
-  {"ssid", config->}
-})

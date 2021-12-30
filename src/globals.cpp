@@ -7,10 +7,20 @@ void initGlobals() {
 
   if (config->resetToDefaults) {
     config->resetToDefaults = false;
-    strcpy(config->ssid, DEFAULT_SSID);
-    strcpy(config->pass, DEFAULT_PASS);
-    strcpy(config->ap_ssid, DEFAULT_AP_SSID);
-    strcpy(config->ap_pass, DEFAULT_AP_PASS);
+    strcpy(config->ssid, "AlexNET");
+    strcpy(config->pass, "");
+    strcpy(config->apSsid, "SmokeMachine");
+    strcpy(config->apPass, "12345678");
+    config->stickyTime = 1000;
+
+    config->autoRunnerInterval = 30000;
+    config->autoRunnerDuration = 500;
+
+    config->radioCodeShort = 0;
+    config->radioCodeSticky = 0;
+
+    config->artNetUniverse = 0;
+    config->artNetChannel = 0;
 
     config.save();
   }

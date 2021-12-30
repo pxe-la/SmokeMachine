@@ -1,0 +1,55 @@
+.mdl-card {
+  background-color: #1e1e1e;
+  color: #454545;
+}
+
+.mdl-layout-title, .mdl-card__title {
+  color: #fff;
+}
+/*
+.mdl-textfield__label {
+  color: hsla(0,0%,100%,.7);
+} */
+
+/* .mdl-textfield__input {
+  border-bottom: 1px solid hsla(0,0%,100%,.7);
+  color: #fff;
+} */
+/* .mdl-button {
+  color: #fff;
+  letter-spacing: 1.5px;
+} */
+
+.mdl-button--outlined {
+  border: thin solid;
+  background-color: transparent;
+}
+
+.mdl-switch__track {
+  background: rgba(255, 255, 255, 0.26);
+}
+/* .mdl-switch.is-checked .mdl-switch__track {
+  background: rgba(63,81,181,.8);
+} */
+
+
+.mdl-layout {
+  background: #121212;
+}
+
+.mdl-layout__drawer, .mdl-layout__header {
+  background-color: #202020;
+}
+
+.mdl-layout__drawer {
+  color: #fafafa;
+  border-right: none;
+}
+
+.mdl-layout__drawer .mdl-navigation .mdl-navigation__link:hover {
+    background-color: #454545;
+}
+
+.mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
+  color: #fafafa;
+}

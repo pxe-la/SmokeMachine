@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Alex's Smoke Machine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="libs/material.min.css">
+  <script src="libs/material.min.js"></script>
+  <link rel="stylesheet" href="libs/md-icons.css">
+  <link rel="stylesheet" type="text/css" href="mdl-customization.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <dialog class="mdl-dialog" id="autoRunnerSettings-dialog">
+    <p class="mdl-dialog__title">Auto Runner</p>
+    <div class="mdl-dialog__content">
+      <form id="autoRunnerSettings-form" data-api="/api/autoRunner">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-dirty">
+          <input class="mdl-textfield__input" type="number" name="interval">
+          <label class="mdl-textfield__label">Interval (ms)</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-dirty">
+          <input class="mdl-textfield__input" type="number" name="duration">
+          <label class="mdl-textfield__label">Duration (ms)</label>
+        </div>
+      </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button
+        class="mdl-button mdl-js-button mdl-button--colored"
+        type="submit"
+        form="autoRunnerSettings-form"
+      >
+        Save
+      </button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
+  <dialog class="mdl-dialog" id="artnet-dialog">
+    <p class="mdl-dialog__title">Artnet settings</p>
+    <div class="mdl-dialog__content">
+      <form id="artnet-form" data-api="/api/artnet">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="number" name="universe">
+          <label class="mdl-textfield__label">Universe</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="number" name="channel">
+          <label class="mdl-textfield__label">Channel</label>
+        </div>
+      </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button
+        class="mdl-button mdl-js-button mdl-button--colored"
+        type="submit"
+        form="artnet-form"
+      >
+        Save
+      </button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
+  <dialog class="mdl-dialog" id="wifi-dialog">
+    <p class="mdl-dialog__title">WiFi settings</p>
+    <div class="mdl-dialog__content">
+      <form id="wifi-form" data-api="/api/wifi">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" maxlength="31" name="ssid">
+          <label class="mdl-textfield__label">SSID</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" maxlength="31" name="pass">
+          <label class="mdl-textfield__label">Password</label>
+        </div>
+      </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button
+        class="mdl-button mdl-js-button mdl-button--colored"
+        type="submit"
+        form="wifi-form"
+      >
+        Save
+      </button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
+  <dialog class="mdl-dialog" id="ap-dialog">
+    <p class="mdl-dialog__title">AP settings</p>
+    <div class="mdl-dialog__content">
+      <form id="ap-form" data-api="/api/ap">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" maxlength="31" name="ssid">
+          <label class="mdl-textfield__label">SSID</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" maxlength="31" name="pass">
+          <label class="mdl-textfield__label">Password</label>
+        </div>
+      </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button
+        class="mdl-button mdl-js-button mdl-button--colored"
+        type="submit"
+        form="ap-form"
+      >
+        Save
+      </button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
+  <dialog class="mdl-dialog" id="stickyTime-dialog">
+    <p class="mdl-dialog__title">Sticky time</p>
+    <div class="mdl-dialog__content">
+      <form id="stickyTime-form" data-api="/api/stickyTime">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="number" name="stickyTime">
+          <label class="mdl-textfield__label">Sticky Time (ms)</label>
+        </div>
+      </form>
+    </div>
+    <div class="mdl-dialog__actions">
+      <button
+        class="mdl-button mdl-js-button mdl-button--colored"
+        type="submit"
+        form="stickyTime-form"
+      >
+        Save
+      </button>
+      <button type="button" class="mdl-button close">Cancel</button>
+    </div>
+  </dialog>
+  <div id="layout" class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <div class="mdl-layout-spacer"></div>
+        <span class="mdl-layout-title">
+          <span id="temp">XXX</span>&deg;C
+        </span>
+      </div>
+    </header>
+    <div class="mdl-layout__drawer">
+      <span class="mdl-layout-title">Settings</span>
+      <nav class="mdl-navigation" id="drawerNav">
+        <a class="mdl-navigation__link" data-dialog="autoRunnerSettings-dialog">Auto Runner</a>
+        <a class="mdl-navigation__link" data-dialog="wifi-dialog">WiFi</a>
+        <a class="mdl-navigation__link" data-dialog="ap-dialog">AP</a>
+        <a class="mdl-navigation__link" data-dialog="artnet-dialog">ArtNet</a>
+        <a class="mdl-navigation__link" data-dialog="stickyTime-dialog">Sticky time</a>
+      </nav>
+      <div class="mdl-layout-spacer"></div>
+      <div style="padding: 16px; display: flex">
+        <p style="flex-grow: 1; font-size: 16px; line-height: 24px">Auto runner</p>
+        <p style="margin-right: 16px">
+          <label class="mdl-switch mdl-js-switch" for="autoRunner">
+            <input type="checkbox" id="autoRunner" class="mdl-switch__input">
+          </label>
+        </p>
+      </div>
+    </div>
+    <main class="mdl-layout__content">
+      <div class="page-content">
+        <button id="btn-run" class="mdl-button mdl-js-button mdl-button--outlined">RUN</button>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

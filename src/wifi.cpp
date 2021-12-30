@@ -8,12 +8,14 @@
 #include <ArtnetWifi.h>
 #include "wifi.h"
 
-static const char* HOSTNAME = "smoke-machine";
-static const char* OTA_PASS = "egziifxn";
+static const char*    HOSTNAME = "smoke-machine";
+static const char*    OTA_PASS = "egziifxn";
 static const uint16_t ARTNET_RUN_TIMEOUT = 2000;
 
+static const char* applicationJson = "application/json";
+
 static ArtnetWifi artnet;
-static AsyncWebServer   server(80);
+static AsyncWebServer server(80);
 
 static void initWifi() {
   SPIFFS.begin();
@@ -22,7 +24,7 @@ static void initWifi() {
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAPConfig(IPAddress( 4, 3, 2, 1 ), IPAddress( 4, 3, 2, 1 ), IPAddress( 255, 255, 255, 0 ));
-  WiFi.softAP(config->ap_ssid, config->ap_pass);
+  WiFi.softAP(config->apSsid, config->apPass);
 
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
@@ -53,51 +55,72 @@ void Wifi::init() {
   artnet.setArtDmxCallback(onDmxFrame);
 
 
-  server.serveStatic("/", SPIFFS, "/");
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");;
 
   server.on("/api/state", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(200, "application/json",
-      String("{\"temp\":") + Machine::getTemp() +
-      ",\"stickyTime\":" + config->stickyTime +
-      ",\"recStickyTime\":" + Machine::recordStickyTime +
-      "}"
-    );
+    static String stringBuf;
+    stringBuf.reserve(90);
+    stringBuf = F("{\"temp\":");
+    stringBuf += Machine::getTemp();
+    stringBuf += F(",\"autoRunner\":");
+    stringBuf += (Machine::autoRunner ? F("true") : F("false"));
+    stringBuf += F(",\"stickyTime\":");
+    stringBuf += config->stickyTime;
+    stringBuf += '}';
+    request->send(200, applicationJson, stringBuf);
   });
 
-  server.on("/api/state", HTTP_POST, [](AsyncWebServerRequest * request) {
-    bool saveFlag = false;
+  server.on("/api/stickyTime", HTTP_GET, [](AsyncWebServerRequest * request) {
+    static String stringBuf;
+    stringBuf.reserve(70);
+    stringBuf = F("{\"stickyTime\":");
+    stringBuf += config->stickyTime;
+    stringBuf += F(",\"recStickyTime\":");
+    stringBuf += Machine::recordStickyTime ? F("true") : F("false");
+    stringBuf += '}';
+    request->send(200, applicationJson, stringBuf);
+  });
+  server.on("/api/stickyTime", HTTP_POST, [](AsyncWebServerRequest * request) {
     auto param = F("stickyTime");
     if (request->hasParam(param, true)) {
       config->stickyTime = request->getParam(param, true)->value().toInt();
-      saveFlag = true;
+      config.save();
     }
     param = F("recStickyTime");
     if (request->hasParam(param, true)) {
       Machine::recordStickyTime = request->getParam(param, true)->value() == "true";
     }
-    param = F("artNetUniverse");
+    request->send(200);
+  });
+
+  server.on("/api/autoRunner", HTTP_GET, [](AsyncWebServerRequest * request) {
+    static String stringBuf;
+    stringBuf.reserve(70);
+    stringBuf = F("{\"enabled\":");
+    stringBuf += (Machine::autoRunner ? F("true") : F("false"));
+    stringBuf += F(",\"interval\":");
+    stringBuf += config->autoRunnerInterval;
+    stringBuf += F(",\"duration\":");
+    stringBuf +=config->autoRunnerDuration;
+    stringBuf += '}';
+
+    request->send(200, applicationJson, stringBuf);
+  });
+  server.on("/api/autoRunner", HTTP_POST, [](AsyncWebServerRequest * request) {
+    bool saveFlag = false;
+    auto param = F("enabled");
     if (request->hasParam(param, true)) {
-      saveFlag = true;
-      config->artNetUniverse = request->getParam(param, true)->value().toInt();
+      Machine::autoRunner = request->getParam(param, true)->value() == "true";
     }
-    param = F("artNetChannel");
-    if (request->hasParam(param, true)) {
-      saveFlag = true;
-      config->artNetChannel = request->getParam(param, true)->value().toInt();
-    }
-    param = F("autoRunnerInterval");
+    param = F("interval");
     if (request->hasParam(param, true)) {
       saveFlag = true;
       config->autoRunnerInterval = request->getParam(param, true)->value().toInt();
     }
-    param = F("autoRunnerDuration");
+    param = F("duration");
     if (request->hasParam(param, true)) {
       saveFlag = true;
       config->autoRunnerDuration = request->getParam(param, true)->value().toInt();
-    }
-    param = F("autoRunner");
-    if (request->hasParam(param, true)) {
-      Machine::autoRunner = request->getParam(param, true)->value() == "true";
     }
     if (saveFlag) config.save();
     request->send(200);
@@ -112,6 +135,36 @@ void Wifi::init() {
     request->send(200);
   });
 
+  server.on("/api/artnet", HTTP_GET, [](AsyncWebServerRequest * request) {
+    static String stringBuf;
+    stringBuf.reserve(50);
+    stringBuf = F("{\"universe\":");
+    stringBuf += config->artNetUniverse;
+    stringBuf += F(",\"channel\":");
+    stringBuf += config->artNetChannel;
+    stringBuf += '}';
+    request->send(200, applicationJson, stringBuf);
+  });
+  server.on("/api/artnet", HTTP_POST, [](AsyncWebServerRequest * request) {
+    auto param = F("artNetUniverse");
+    if (request->hasParam(param, true)) {
+      config->artNetUniverse = request->getParam(param, true)->value().toInt();
+    }
+    param = F("artNetChannel");
+    if (request->hasParam(param, true)) {
+      config->artNetChannel = request->getParam(param, true)->value().toInt();
+    }
+    config.save();
+  });
+
+  server.on("/api/wifi", HTTP_GET, [](AsyncWebServerRequest * request) {
+    static String stringBuf;
+    stringBuf.reserve(50);
+    stringBuf = F("{\"ssid\":\"");
+    stringBuf += config->ssid;
+    stringBuf += "\"}";
+    request->send(200, applicationJson, stringBuf);
+  });
   server.on("/api/wifi", HTTP_POST, [](AsyncWebServerRequest * request) {
     if (request->hasParam("ssid", true) && request->hasParam("pass", true)) {
       String newSsid = request->getParam("ssid", true)->value();
@@ -125,12 +178,20 @@ void Wifi::init() {
     request->send(200);
   });
 
+  server.on("/api/ap", HTTP_GET, [](AsyncWebServerRequest * request) {
+    static String stringBuf;
+    stringBuf.reserve(50);
+    stringBuf = F("{\"ssid\":\"");
+    stringBuf += config->apSsid;
+    stringBuf += "\"}";
+    request->send(200, applicationJson, stringBuf);
+  });
   server.on("/api/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
     if (request->hasParam("ssid", true) && request->hasParam("pass", true)) {
       String newApSsid = request->getParam("ssid", true)->value();
       String newApPass = request->getParam("pass", true)->value();
-      strcpy(config->ap_ssid, newApSsid.c_str());
-      strcpy(config->ap_pass, newApPass.c_str());
+      strcpy(config->apSsid, newApSsid.c_str());
+      strcpy(config->apPass, newApPass.c_str());
       config.save();
       ESP.restart();
     }

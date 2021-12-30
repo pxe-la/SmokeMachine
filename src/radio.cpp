@@ -11,8 +11,7 @@ void Radio::init() {
 void Radio::handle() {
   if (radio.available()) {
     uint32_t code = radio.getReceivedValue();
-    radio.resetAvailable();
-
+    Serial.println(code);
     if (learnCode == 1) {
       config->radioCodeShort = code;
     } else if (learnCode == 2) {
@@ -26,6 +25,8 @@ void Radio::handle() {
     if (config->radioCodeSticky == code) {
       Machine::run(config->stickyTime);
     }
+
+    radio.resetAvailable();
   }
 }
 

@@ -52,15 +52,14 @@ void Machine::handle() {
   bool shouldRun = timer && mil < timer;
   static bool lastShouldRun = false;
 
-  if (!shouldRun) {
-    timer = 0;
-    if (recordStickyTime) {
+  if (recordStickyTime && shouldRun != lastShouldRun) {
+    if (shouldRun) {
+      startTime = mil;
+    } else {
       recordStickyTime = 0;
       config->stickyTime = millis() - startTime;
       config.save();
     }
-  } else if (shouldRun && lastShouldRun != shouldRun) {
-    startTime = mil;
   }
 
   digitalWrite(PUMP_PIN, !(shouldRun && temp > MIN_TEMP));
